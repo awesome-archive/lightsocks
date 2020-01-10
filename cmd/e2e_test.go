@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"github.com/gwuhaolin/lightsocks/core"
-	"github.com/gwuhaolin/lightsocks/local"
-	"github.com/gwuhaolin/lightsocks/server"
+	"github.com/gwuhaolin/lightsocks"
 	"golang.org/x/net/proxy"
 	"io"
 	"log"
@@ -65,11 +63,15 @@ func runEchoServer() {
 }
 
 func runLightsocksProxyServer() {
-	password := core.RandPassword()
-	localAddr, _ := net.ResolveTCPAddr("tcp", LightSocksProxyLocalAddr)
-	serverAddr, _ := net.ResolveTCPAddr("tcp", LightSocksProxyServerAddr)
-	serverS := local.New(password, localAddr, serverAddr)
-	localS := server.New(password, serverAddr)
+	password := lightsocks.RandPassword()
+	serverS, err := lightsocks.NewLsLocal(password, LightSocksProxyLocalAddr, LightSocksProxyServerAddr)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	localS, err := lightsocks.NewLsServer(password, LightSocksProxyServerAddr)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	go func() {
 		log.Fatalln(serverS.Listen(func(listenAddr net.Addr) {
 			log.Println(listenAddr)

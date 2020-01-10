@@ -1,4 +1,4 @@
-package core
+package lightsocks
 
 import (
 	"crypto/rand"
@@ -10,18 +10,19 @@ const (
 	MB = 1024 * 1024
 )
 
-// 测试 Cipher 加密解密
+// 测试 cipher 加密解密
 func TestCipher(t *testing.T) {
 	password := RandPassword()
 	t.Log(password)
-	cipher := NewCipher(password)
+	p, _ := parsePassword(password)
+	cipher := newCipher(p)
 	// 原数据
-	org := make([]byte, PasswordLength)
-	for i := 0; i < PasswordLength; i++ {
+	org := make([]byte, passwordLength)
+	for i := 0; i < passwordLength; i++ {
 		org[i] = byte(i)
 	}
 	// 复制一份原数据到 tmp
-	tmp := make([]byte, PasswordLength)
+	tmp := make([]byte, passwordLength)
 	copy(tmp, org)
 	t.Log(tmp)
 	// 加密 tmp
@@ -37,7 +38,8 @@ func TestCipher(t *testing.T) {
 
 func BenchmarkEncode(b *testing.B) {
 	password := RandPassword()
-	cipher := NewCipher(password)
+	p, _ := parsePassword(password)
+	cipher := newCipher(p)
 	bs := make([]byte, MB)
 	b.ResetTimer()
 	rand.Read(bs)
@@ -46,7 +48,8 @@ func BenchmarkEncode(b *testing.B) {
 
 func BenchmarkDecode(b *testing.B) {
 	password := RandPassword()
-	cipher := NewCipher(password)
+	p, _ := parsePassword(password)
+	cipher := newCipher(p)
 	bs := make([]byte, MB)
 	b.ResetTimer()
 	rand.Read(bs)
